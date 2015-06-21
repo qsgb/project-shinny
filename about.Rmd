@@ -1,0 +1,50 @@
+---
+title: "Most harmful sever event in US"
+author: "Jian LIU"
+date: "21 juin 2015"
+output: 
+  html_document: 
+    keep_md: yes
+---
+##About
+
+By this application we can visualize the consequence of most 10 harmful sever events in US.
+
+###How to use
+
+Select the year and the consequence you want to explore, it will show you the bar plot of the 10 most harmful events for each consequence you selected in the years you specified.
+
+##Data preprocessing
+The data were from the [U.S. National Oceanic and Atmospheric Administration's (NOAA) storm database](https://www.ncdc.noaa.gov/stormevents/) which tracks characteristics of major storms and weather events in the United States. We have downlowded all the data from 1996 to 2015. The original file are seperated for each year, thus we applied the codes as below to merge all the data and subset the colums we needed in this application.
+
+
+```{r data, echo=TRUE,eval=FALSE}
+setwd("C:\\Users\\Jian\\Documents\\Study\\R book\\coursera R\\shiny\\data")
+data<-read.csv(gzfile("StormEvents_details-ftp_v1.0_d1996_c20140916.csv.gz"),header=TRUE)
+data2<-read.csv(gzfile("StormEvents_details-ftp_v1.0_d2015_c20150601.csv.gz"),header=TRUE)
+files <- list.files(pattern = ".csv")
+data<- lapply(files, function(x){read.csv(gzfile(x),header=TRUE)})
+data2<-data[[1]]
+for (i in 2:20) {
+  data2<-rbind(data2,data[[i-1]])
+}
+write.csv(data2,"C:\\Users\\Jian\\Documents\\Study\\R book\\coursera R\\shiny\\data.csv")
+convert<-function(cha){
+  if(cha!=""){
+  vec<-strsplit(cha,split="")[[1]]
+  length=length(vec)
+  num=as.numeric(paste(vec[-length],collapse=""))
+  if(vec[length]=="K") num=num*1000
+  if(vec[length]=="M") num=num*1000000
+  if(vec[length]=="B") num=num*1000000000
+  num
+  }
+  else num<-NA
+}
+data2$DAMAGE_PROPERTY<-as.character(data2$DAMAGE_PROPERTY)
+data2$DAMAGE_CROPS<-as.character(data2$DAMAGE_CROPS)
+data2$DAMAGE_PROPERTY<-sapply(data2$DAMAGE_PROPERTY,convert)
+data2$DAMAGE_CROPS<-sapply(data2$DAMAGE_CROPS,convert)
+data3<-data.frame(YEAR=data2$YEAR,TYPE=data2$EVENT_TYPE,INJURIES_DIRECT=data2$INJURIES_DIRECT,DEATHS_DIRECT=data2$DEATHS_DIRECT,DAMAGE_PROPERTY=data2$DAMAGE_PROPERTY,DAMAGE_CROPS=data2$DAMAGE_CROPS)
+save(data3,"C:\\Users\\Jian\\Documents\\Study\\R book\\coursera R\\shiny\\data.RDtata")
+```
