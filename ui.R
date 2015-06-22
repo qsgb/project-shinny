@@ -20,7 +20,7 @@ shinyUI(
              ),
              mainPanel(     
                       h4('Concequence of most harmful events', align = "center"),
-                      plotOutput(outputId = "Plot", height = "300px")
+                      plotOutput(outputId = "Plot")
                    ) # end of "Visualize the Data" tab panel
                  ),
         tabPanel("About",

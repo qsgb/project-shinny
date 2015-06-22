@@ -1,13 +1,16 @@
 library(shiny)
 library(dplyr)
 library(ggplot2)
-# Load data processing file
 load("data.RData")
 dataagr<-function(data=data3,int1,int2,conse){
   dt <- data %>% filter(YEAR >= int1, YEAR <= int2)
   index<-which(names(dt)==conse)
-  df<-aggregate(dt[,index], by = list(dt$EVTYPE), FUN = "sum")
-  return(df)
+  df<-aggregate(dt[,index], by = list(dt$TYPE), FUN = "sum")
+  names(df)<-c("Type","sum")
+  ord<-order(df$sum,decreasing = TRUE)
+  result<-df[ord,]
+  result<-head(result,n=10)
+  return(result)
 }
 
 # Shiny server
@@ -19,14 +22,12 @@ shinyServer(
     })
     
     output$Plot <- renderPlot({
-     # p <- qplot(data=data(),Group.1, weight =x, geom = "bar", binwidth = 1) +
-      #  scale_y_continuous(input$conse) + 
-      #  theme(axis.text.x = element_text(angle = 45, hjust = 1)) + 
-      #  xlab("Event Type")
-   # print(p) 
-      barplot(data()[,1], 
-              main=input$conse,
-              xlab="Event type")
+      p <- qplot(data=data(),Type, weight =sum, geom = "bar", binwidth = 1) +
+        scale_y_continuous(input$conse) + 
+        theme(axis.text.x = element_text(angle = 45)) + 
+        xlab("Event Type")
+    print(p) 
+      
 })
   } # end of function(input, output)
 )
